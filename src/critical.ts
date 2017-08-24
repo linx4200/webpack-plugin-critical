@@ -31,6 +31,7 @@ export interface CriticalPluginOptions {
    * Only relevant without src (if raw html is provided) or if the destination is outside base.
    */
   destFolder?: string;
+  css?: string,
   /**
    * Width of the target viewport.
    */
@@ -113,11 +114,21 @@ export class CriticalPlugin {
       assets: compilation.assets
     })
     .subscribe((tmp) => {
-      const opts = {...options, ...{
-        base: resolve(tmp, options.base || ''),
-        dest: resolve(tmp, options.dest)
-      }};
-
+      let opts = {
+        ...options,
+        ...{
+          base: resolve(tmp, options.base || ''),
+          dest: resolve(tmp, options.dest)
+        }
+      }
+      if (options.css) {
+        opts = {
+          ...opts,
+          ...{
+            css: resolve(tmp, options.css)
+          }
+        }
+      }
       critical.generate(opts, (err, output) => {
         subscription.unsubscribe();
         callback(err);
